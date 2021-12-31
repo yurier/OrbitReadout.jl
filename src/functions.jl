@@ -11,8 +11,10 @@ function polytopes_create(data,space; plot_ = false)
 	## find limits of polytope grid
 	ymax=-Inf;xmax=-Inf;ymin=Inf;xmin=Inf
 	for i in 1:size(data,1)
-		Xmax=maximum(data[i][1]);Ymax=maximum(data[i][2])
-		Xmin=minimum(data[i][1]);Ymin=minimum(data[i][2])
+		Xmax=maximum(data[i][1])
+		Ymax=maximum(data[i][2])
+		Xmin=minimum(data[i][1])
+		Ymin=minimum(data[i][2])
 		if Xmax>xmax
 			xmax = Xmax
 		end
@@ -90,7 +92,7 @@ function coincidence_detector(data,space,classes_matrices,degree)
 	# 	push!(spent_time_positions,sortperm(reshape(classes_matrices[j],space*space),rev=true)) #[1:Int(round(space*space/degree))]
 	# end
 
-	#values that zero within the time spent matrix
+	#nonzero indexes within the time spent matrix per class
 	nonzero_list = Vector{Int64}[]
 	for j in 1:length(classes)
 		aux=Int64[]
@@ -118,7 +120,7 @@ function coincidence_detector(data,space,classes_matrices,degree)
 	spent_time_positions = Vector{Int64}[]#zeros(Int64,Int(round(space*space/degree)),length(classes))
 	for j in 1:length(classes)
 		ranked_time_spent=sortperm(reshape(classes_matrices[j],space*space),rev=true)
-		nointer=filter!(e->e∉ intersection_list,	 ranked_time_spent[1:Int(round((space*space)*degree))])
+		nointer=filter!(e->e∉ intersection_list,ranked_time_spent[1:Int(round((space*space)*degree))])
 		push!(spent_time_positions, filter!(e->e ∈ nonzero_list[j],nointer))
 	end
 
@@ -127,10 +129,10 @@ function coincidence_detector(data,space,classes_matrices,degree)
 end
 
 ############ plot time spent for all orbits
-function time_spent_plot(data,space,nhull; plot_ = false)
-	c1 = colorant"red"
-		c2 = colorant"blue"
+function time_spent_plot(data,space,nhull,sol; plot_ = false)
 		if plot_ == true
+			c1 = colorant"red"
+			c2 = colorant"blue"
 			p=Plots.plot(layout=(space,space),windowsize=(6*300,6*200),axis=:none,grid=:none,border=:none,legend=:none)
 		end
 		score=[zeros(space,space) for i in 1:size(data,1)]
@@ -138,13 +140,13 @@ function time_spent_plot(data,space,nhull; plot_ = false)
 				for i in 1:(space*space)
 					@show i
 					if plot_ == true
-						p=Plots.plot!(p,sol,vars=(i+nhull*(j)),subplot=(i),label="",xlabel="",w=3,color=weighted_color_mean((i/(space*space)), c1, c2),ylim=[0,7e4])
+						p=Plots.plot!(p,sol,vars=(i+nhull*(j)),subplot=(i),label="",xlabel="",w=3,color=weighted_color_mean((i/(space*space)), c1, c2))
 					end
 					score[j+1][i] = score[j+1][i] + sol.u[end][i+nhull*(j)]
 				end
 		end
-			if plot_ == true
-				plot!() |>display
-			end
-			return score
+		if plot_ == true
+			plot!() |>display
+		end
+		return score
 end

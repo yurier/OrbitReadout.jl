@@ -1,9 +1,8 @@
 module OrbitReadout
+	using JLD2, FileIO, Plots, LazySets, DifferentialEquations, ColorSchemes, Parameters
 
-using JLD2, FileIO, Plots
-using LazySets, DifferentialEquations, ColorSchemes, Parameters
+	include("parameters.jl")
+	include("functions.jl")
 
-include("parameters.jl")
-include("functions.jl")
-
-end # module
+	export dynmcl_pttrn
+end

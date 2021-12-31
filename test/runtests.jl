@@ -1,5 +1,4 @@
-using JLD2, FileIO, Plots
-using LazySets, DifferentialEquations, ColorSchemes, Parameters
+using OrbitReadout
 
 ##################################################
 #VECTOR
@@ -25,6 +24,7 @@ list=["1Pre1Post10"; "2Pre50";  "1Pre2Post10" ; "2Pre10"]
 # 	0.5;
 # 	0.75;
 # 	0.1]
+
 list_weight=[0.1; -0.4; 0.75; 0.05]
 #
 # list_class=["N";
@@ -35,15 +35,16 @@ list_weight=[0.1; -0.4; 0.75; 0.05]
 # 	"P";
 # 	"P";
 # 	"N"]
+
 list_class=["N"; "D"; "P"; "N"]
 
 data=Vector{Array{Float64,1}}[]
 	for j in 1:size(list,1)
 		for i in 1:2
 		protocol=list[j]
-		tt=load("dataset_tigaret\\$(i)_$(protocol).jld2","time")
-			g=load("dataset_tigaret\\$(i)_$(protocol).jld2","CaN")
-			h=load("dataset_tigaret\\$(i)_$(protocol).jld2","CaMKII")
+		tt=OrbitReadout.load("test/data_test/$(i)_$(protocol).jld2","time")
+			g=OrbitReadout.load("test/data_test/$(i)_$(protocol).jld2","CaN")
+			h=OrbitReadout.load("test/data_test/$(i)_$(protocol).jld2","CaMKII")
 			# idx=[]
 			# for i in collect(0. : tt[end]/500: tt[end])
 			# 	append!(idx, findall(x->x <=i, tt)[end])
@@ -53,16 +54,14 @@ data=Vector{Array{Float64,1}}[]
 		end
 	end
 
-include("parameters.jl")
-include("functions.jl")
-
-# DYNAMICAL SYSTEM
+## DYNAMICAL SYSTEM
 # nhull=size(HULL,1)
+
 space=7 #resolution
-HULL, xmin, xmax, ymin, ymax = polytopes_create(data,space; plot_ = true)
-	dynmcl_pttrn = Dynamical_Pattern(
-		nhull		    = nhull=size(HULL,1))
-#
+HULL, xmin, xmax, ymin, ymax = OrbitReadout.polytopes_create(data,space; plot_ = true)
+	dynmcl_pttrn = OrbitReadout.Dynamical_Pattern(
+				   nhull = nhull=size(HULL,1))
+
 # using LaTeXStrings, ColorSchemes
 	# i=1;plot!(data[i][1],data[i][2],color=get(colorschemes[:viridis],.5),xlabel="\$x_1\$",ylabel="\$x_2\$",label="N",w=2,subplot=3)
 	# i=2;plot!(data[i][1],data[i][2],color=get(colorschemes[:viridis],.5),xlabel="\$x_1\$",ylabel="\$x_2\$",label="N",w=2,subplot=3)
@@ -75,12 +74,12 @@ HULL, xmin, xmax, ymin, ymax = polytopes_create(data,space; plot_ = true)
 # 	#Plots.savefig("example5.svg")
 
 
-# DYNAMICAL SYSTEM
+# DYNAMICAL 2D SYSTEM
 function jointt!(du,u,p,t)
 	for j in 1:size(data,1)
 		for i in 1:(p[1].nhull)
 			#du[i+p[1].nhull*(j-1)] 	= [data[j][1][last(data[j][3],t)],data[j][2][last(data[j][3],t)]] ∈ VPolygon(p[2][i])
-			du[i+p[1].nhull*(j-1)] 	= [p[3][j][1][last(p[3][j][3],t)],p[3][j][2][last(p[3][j][3],t)]] ∈ VPolygon(p[2][i])
+			du[i+p[1].nhull*(j-1)] 	= [p[3][j][1][OrbitReadout.last(p[3][j][3],t)],p[3][j][2][OrbitReadout.last(p[3][j][3],t)]] ∈ OrbitReadout.VPolygon(p[2][i])
 		end
 	end
 end
@@ -89,8 +88,8 @@ end
 u0 = zeros(size(data,1)*space*space)
     tend= 4e5
     tspan = (0.0,tend)
-    prob = ODEProblem(jointt!,u0,tspan,(dynmcl_pttrn,HULL,data))
-    @time  sol = solve(prob,reltol=1e-4,saveat=0.85)
+    prob = OrbitReadout.ODEProblem(jointt!,u0,tspan,(dynmcl_pttrn,HULL,data))
+    @time  sol = OrbitReadout.solve(prob,reltol=1e-4,saveat=0.85)
 
 #plot and get matrix plotted
 time_spent_plot(data,space,nhull; plot_ = false)
