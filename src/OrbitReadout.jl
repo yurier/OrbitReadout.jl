@@ -4,5 +4,6 @@ module OrbitReadout
 	include("parameters.jl")
 	include("functions.jl")
 
-	export dynmcl_pttrn
+	export time_spent_mesh!
+
 end
