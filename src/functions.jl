@@ -217,8 +217,8 @@ function generate_geometrical_readout(degree, neighbour_tiles, data, space, sol,
 		Plots.plot(layout=(1,3),windowsize=(1.8*300,.7*200),grid=:none,border=:none)
 		colls=	range(HSV(140,1,1), stop=HSV(360,1,1), length=3)
 		for c in 1:length(classes)
-			Plots.plot!( OrbitReadout.VPolygon(polytopes[c]), alpha=.1,label="",color=colls[c],subplot=2)
-			Plots.plot!( OrbitReadout.VPolygon(polytopes[c]), alpha=.1,label="",color=colls[c],subplot=3)
+			Plots.plot!( OrbitReadout.VPolygon(polytopes[c]), alpha=.2,label="",color=colls[c],subplot=2)
+			Plots.plot!( OrbitReadout.VPolygon(polytopes[c]), alpha=.2,label="",color=colls[c],subplot=3)
 			for i in list_mesh[c]
 				if classes_matrices[c][i]>0
 					Plots.plot!( OrbitReadout.VPolygon(mesh[i]), alpha=classes_matrices[c][i]/maximum(classes_matrices[c][list_mesh[c]]),label="",color=colls[c],subplot=1)
@@ -231,7 +231,7 @@ function generate_geometrical_readout(degree, neighbour_tiles, data, space, sol,
 		for j in 1:length(classes)
 			for i in 1:size(data,1)
 				if data[i][5] == classes[j]
-					plot!(data[i][1],data[i][2],color=colls[j],xlabel="\$x_1\$",ylabel="\$x_2\$",w=.5,subplot=2,label="" )
+					#plot!(data[i][1],data[i][2],color=colls[j],xlabel="\$x_1\$",ylabel="\$x_2\$",w=.5,subplot=2,label="" )
 					plot!(data[i][1],data[i][2],color=colls[j],xlabel="\$x_1\$",ylabel="\$x_2\$",w=.5,subplot=3,label="" )
 				end
 			end
